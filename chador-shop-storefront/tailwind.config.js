@@ -12,15 +12,43 @@ module.exports = {
   ],
   theme: {
     extend: {
-      transitionProperty: {
-        width: "width margin",
-        height: "height",
-        bg: "background-color",
-        display: "display opacity",
-        visibility: "visibility",
-        padding: "padding-top padding-right padding-bottom padding-left",
+      fontFamily: {
+        playfair: ['Playfair Display', 'serif'],
+        inter: ['Inter', 'sans-serif'],
+        sans: [
+          "Inter",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "Segoe UI",
+          "Roboto",
+          "Helvetica Neue",
+          "Ubuntu",
+          "sans-serif",
+        ],
       },
       colors: {
+        // Chador Brand Colors
+        'chador-cream': '#F7F3E9',
+        'chador-warm-white': '#FEFCF7',
+        'chador-soft-beige': '#E8E2D5',
+        'chador-taupe': '#C4B5A0',
+        'chador-brown': '#8B7355',
+        'chador-dark-brown': '#5D4E37',
+        'chador-black': '#1A1A1A',
+        'chador-gold': '#D4AF37',
+        'chador-rose-gold': '#E8B4B8',
+
+        // Accent colors
+        'chador-sage': '#9CAF88',
+        'chador-terracotta': '#C65D07',
+        'chador-dusty-rose': '#D4A5A5',
+
+        // Neutral variations
+        'chador-light-grey': '#F5F5F5',
+        'chador-medium-grey': '#E0E0E0',
+        'chador-dark-grey': '#4A4A4A',
+
+        // Keep existing grey scale for compatibility
         grey: {
           0: "#FFFFFF",
           5: "#F9FAFB",
@@ -35,16 +63,34 @@ module.exports = {
           90: "#111827",
         },
       },
+      spacing: {
+        '18': '4.5rem',
+        '88': '22rem',
+        '128': '32rem',
+      },
+      transitionProperty: {
+        width: "width margin",
+        height: "height",
+        bg: "background-color",
+        display: "display opacity",
+        visibility: "visibility",
+        padding: "padding-top padding-right padding-bottom padding-left",
+        transform: "transform",
+        'colors-transform': 'background-color, border-color, color, fill, stroke, transform',
+      },
       borderRadius: {
         none: "0px",
         soft: "2px",
         base: "4px",
         rounded: "8px",
         large: "16px",
+        xl: "20px",
+        "2xl": "24px",
         circle: "9999px",
       },
       maxWidth: {
         "8xl": "100rem",
+        "9xl": "120rem",
       },
       screens: {
         "2xsmall": "320px",
@@ -57,18 +103,26 @@ module.exports = {
       },
       fontSize: {
         "3xl": "2rem",
+        "4xl": "2.5rem",
+        "5xl": "3rem",
+        "6xl": "3.75rem",
+        "7xl": "4.5rem",
       },
-      fontFamily: {
-        sans: [
-          "Inter",
-          "-apple-system",
-          "BlinkMacSystemFont",
-          "Segoe UI",
-          "Roboto",
-          "Helvetica Neue",
-          "Ubuntu",
-          "sans-serif",
-        ],
+      letterSpacing: {
+        'extra-wide': '0.1em',
+        'ultra-wide': '0.15em',
+      },
+      boxShadow: {
+        'chador': '0 10px 25px -5px rgba(139, 115, 85, 0.1), 0 10px 10px -5px rgba(139, 115, 85, 0.04)',
+        'chador-lg': '0 25px 50px -12px rgba(139, 115, 85, 0.25)',
+        'chador-xl': '0 35px 60px -12px rgba(139, 115, 85, 0.3)',
+        'inner-chador': 'inset 0 2px 10px rgba(139, 115, 85, 0.1)',
+      },
+      backgroundImage: {
+        'chador-gradient': 'linear-gradient(135deg, #F7F3E9 0%, #E8E2D5 100%)',
+        'chador-gradient-dark': 'linear-gradient(135deg, #5D4E37 0%, #1A1A1A 100%)',
+        'chador-hero': 'linear-gradient(135deg, #F7F3E9 0%, #E8E2D5 50%, #FEFCF7 100%)',
+        'chador-text': 'linear-gradient(135deg, #5D4E37 0%, #D4AF37 100%)',
       },
       keyframes: {
         ring: {
@@ -83,6 +137,36 @@ module.exports = {
           "100%": {
             opacity: "1",
             transform: "translateX(0)",
+          },
+        },
+        "fade-in-left": {
+          "0%": {
+            opacity: "0",
+            transform: "translateX(-10px)",
+          },
+          "100%": {
+            opacity: "1",
+            transform: "translateX(0)",
+          },
+        },
+        "fade-in-up": {
+          "0%": {
+            opacity: "0",
+            transform: "translateY(20px)",
+          },
+          "100%": {
+            opacity: "1",
+            transform: "translateY(0)",
+          },
+        },
+        "fade-in-down": {
+          "0%": {
+            opacity: "0",
+            transform: "translateY(-20px)",
+          },
+          "100%": {
+            opacity: "1",
+            transform: "translateY(0)",
           },
         },
         "fade-in-top": {
@@ -104,6 +188,26 @@ module.exports = {
           },
           "100%": {
             visibility: "hidden",
+          },
+        },
+        "scale-in": {
+          "0%": {
+            opacity: "0",
+            transform: "scale(0.9)",
+          },
+          "100%": {
+            opacity: "1",
+            transform: "scale(1)",
+          },
+        },
+        "scale-out": {
+          "0%": {
+            opacity: "1",
+            transform: "scale(1)",
+          },
+          "100%": {
+            opacity: "0",
+            transform: "scale(0.9)",
           },
         },
         "accordion-slide-up": {
@@ -140,21 +244,32 @@ module.exports = {
           "0%": { transform: "translateY(-100%)" },
           "100%": { transform: "translateY(0)" },
         },
+        "float": {
+          "0%, 100%": { transform: "translateY(0px)" },
+          "50%": { transform: "translateY(-10px)" },
+        },
+        "bounce-soft": {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-5px)" },
+        },
       },
       animation: {
         ring: "ring 2.2s cubic-bezier(0.5, 0, 0.5, 1) infinite",
-        "fade-in-right":
-          "fade-in-right 0.3s cubic-bezier(0.5, 0, 0.5, 1) forwards",
+        "fade-in-right": "fade-in-right 0.3s cubic-bezier(0.5, 0, 0.5, 1) forwards",
+        "fade-in-left": "fade-in-left 0.3s cubic-bezier(0.5, 0, 0.5, 1) forwards",
+        "fade-in-up": "fade-in-up 0.6s cubic-bezier(0.5, 0, 0.5, 1) forwards",
+        "fade-in-down": "fade-in-down 0.6s cubic-bezier(0.5, 0, 0.5, 1) forwards",
         "fade-in-top": "fade-in-top 0.2s cubic-bezier(0.5, 0, 0.5, 1) forwards",
-        "fade-out-top":
-          "fade-out-top 0.2s cubic-bezier(0.5, 0, 0.5, 1) forwards",
-        "accordion-open":
-          "accordion-slide-down 300ms cubic-bezier(0.87, 0, 0.13, 1) forwards",
-        "accordion-close":
-          "accordion-slide-up 300ms cubic-bezier(0.87, 0, 0.13, 1) forwards",
+        "fade-out-top": "fade-out-top 0.2s cubic-bezier(0.5, 0, 0.5, 1) forwards",
+        "scale-in": "scale-in 0.3s cubic-bezier(0.5, 0, 0.5, 1) forwards",
+        "scale-out": "scale-out 0.3s cubic-bezier(0.5, 0, 0.5, 1) forwards",
+        "accordion-open": "accordion-slide-down 300ms cubic-bezier(0.87, 0, 0.13, 1) forwards",
+        "accordion-close": "accordion-slide-up 300ms cubic-bezier(0.87, 0, 0.13, 1) forwards",
         enter: "enter 200ms ease-out",
         "slide-in": "slide-in 1.2s cubic-bezier(.41,.73,.51,1.02)",
         leave: "leave 150ms ease-in forwards",
+        "float": "float 3s ease-in-out infinite",
+        "bounce-soft": "bounce-soft 2s ease-in-out infinite",
       },
     },
   },
