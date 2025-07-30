@@ -1,55 +1,96 @@
-// components/Footer.tsx - Clean Footer
+// components/Footer.tsx - Minimale Professionele Footer
 import Link from 'next/link'
 
 export default function Footer() {
     return (
         <footer className="footer">
             <div className="container">
-                <div className="grid-3">
-                    {/* Company Info */}
+                {/* Main Footer Content */}
+                <div className="grid grid-4 gap-xl mb-xl">
+                    {/* Brand */}
                     <div>
-                        <h3>EleganteKleding</h3>
-                        <p>Premium kleding voor elke gelegenheid. Kwaliteit en stijl gecombineerd.</p>
-                        <div className="mt-4">
-                            <p>📍 Amsterdam, Nederland</p>
-                            <p>📞 +31 20 123 4567</p>
-                            <p>✉️ info@elegantekleding.nl</p>
-                        </div>
+                        <Link href="/" className="navbar-brand text-white block mb-md">
+                            Elegante Kleding
+                        </Link>
+                        <p className="text-sm text-light-grey leading-relaxed">
+                            Premium fashion for the discerning individual.
+                            Timeless design meets exceptional quality.
+                        </p>
                     </div>
 
-                    {/* Quick Links */}
+                    {/* Navigation */}
                     <div>
-                        <h3>Snelle Links</h3>
-                        <ul style={{ listStyle: 'none', padding: 0 }}>
-                            <li className="mb-4"><Link href="/">Home</Link></li>
-                            <li className="mb-4"><Link href="/products">Alle Producten</Link></li>
-                            <li className="mb-4"><Link href="/categories">Categorieën</Link></li>
-                            <li className="mb-4"><Link href="/about">Over Ons</Link></li>
-                            <li className="mb-4"><Link href="/contact">Contact</Link></li>
+                        <h3>Navigation</h3>
+                        <ul className="space-y-xs">
+                            <li><Link href="/">Home</Link></li>
+                            <li><Link href="/products">Shop</Link></li>
+                            <li><Link href="/about">About</Link></li>
+                            <li><Link href="/contact">Contact</Link></li>
                         </ul>
                     </div>
 
-                    {/* Customer Service */}
+                    {/* Customer Care */}
                     <div>
-                        <h3>Klantenservice</h3>
-                        <ul style={{ listStyle: 'none', padding: 0 }}>
-                            <li className="mb-4"><Link href="/shipping">Verzending</Link></li>
-                            <li className="mb-4"><Link href="/returns">Retour</Link></li>
-                            <li className="mb-4"><Link href="/size-guide">Maattabel</Link></li>
-                            <li className="mb-4"><Link href="/faq">Veelgestelde Vragen</Link></li>
-                            <li className="mb-4"><Link href="/privacy">Privacy</Link></li>
+                        <h3>Customer Care</h3>
+                        <ul className="space-y-xs">
+                            <li><Link href="/shipping">Shipping</Link></li>
+                            <li><Link href="/returns">Returns</Link></li>
+                            <li><Link href="/size-guide">Size Guide</Link></li>
+                            <li><Link href="/faq">FAQ</Link></li>
+                        </ul>
+                    </div>
+
+                    {/* Legal */}
+                    <div>
+                        <h3>Legal</h3>
+                        <ul className="space-y-xs">
+                            <li><Link href="/privacy">Privacy Policy</Link></li>
+                            <li><Link href="/terms">Terms of Service</Link></li>
+                            <li><Link href="/cookies">Cookie Policy</Link></li>
                         </ul>
                     </div>
                 </div>
 
-                {/* Copyright */}
-                <div style={{
-                    borderTop: '1px solid #333',
-                    marginTop: '40px',
-                    paddingTop: '20px',
-                    textAlign: 'center'
-                }}>
-                    <p>&copy; 2024 EleganteKleding. Alle rechten voorbehouden.</p>
+                {/* Contact Information */}
+                <div className="border-t border-dark-grey pt-lg mb-lg">
+                    <div className="grid grid-2 gap-xl">
+                        <div>
+                            <h3 className="mb-sm">Contact</h3>
+                            <div className="space-y-xs text-sm text-light-grey">
+                                <p>Amsterdam, Netherlands</p>
+                                <p>+31 20 123 4567</p>
+                                <p>info@elegantekleding.nl</p>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 className="mb-sm">Newsletter</h3>
+                            <form className="flex gap-xs">
+                                <input
+                                    type="email"
+                                    placeholder="Email address"
+                                    className="flex-1 px-sm py-xs bg-charcoal border border-dark-grey text-white text-sm placeholder-light-grey focus:outline-none focus:border-white"
+                                />
+                                <button
+                                    type="submit"
+                                    className="px-sm py-xs bg-white text-black text-sm font-medium hover:bg-light-grey transition-colors"
+                                >
+                                    Subscribe
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Bottom Bar */}
+                <div className="footer-bottom">
+                    <div className="flex flex-col md:flex-row justify-between items-center gap-sm">
+                        <p>&copy; 2024 Elegante Kleding. All rights reserved.</p>
+                        <div className="flex gap-lg">
+                            <Link href="/privacy">Privacy</Link>
+                            <Link href="/terms">Terms</Link>
+                            <Link href="/cookies">Cookies</Link>
+                        </div>
+                    </div>
                 </div>
             </div>
         </footer>
