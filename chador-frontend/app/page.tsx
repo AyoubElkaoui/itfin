@@ -1,197 +1,221 @@
-// app/page.tsx - Homepage met Client Component voor afbeeldingen
-import { getProducts, getCollections, testConnection, getEnvironmentInfo } from '@/lib/medusa'
+// app/page.tsx - Clean Professional Homepage
+import { medusaClient, formatPrice, getVariantPrice } from '@/lib/medusa'
 import Link from 'next/link'
-import ProductImage from '@/components/ProductImage'
-import CartHeaderButton from '@/components/CartHeaderButton'
+import Image from 'next/image'
+import Navbar from '@/components/Navbar'
+import Footer from '@/components/Footer'
+import AddToCartButton from '@/components/AddToCartButton'
 
 export default async function HomePage() {
-    // Haal environment info op
-    const envInfo = getEnvironmentInfo()
-    console.log('🔧 Environment Info:', envInfo)
+    let products = []
 
-    // Test de connectie en krijg gedetailleerde info
-    const connectionResult = await testConnection()
-    console.log('🔌 Connection Result:', connectionResult)
-
-    // Probeer products op te halen (ook als connectie faalt)
-    const products = await getProducts()
-    const collections = await getCollections()
+    try {
+        products = await medusaClient.getProducts()
+    } catch (error) {
+        console.error('Error loading products:', error)
+    }
 
     return (
-        <div className="min-h-screen bg-white">
-            {/* Debug Info Panel */}
-            <div className="bg-gray-900 text-white p-4 text-xs font-mono">
-                <div className="max-w-7xl mx-auto">
-                    <h3 className="font-bold mb-2">🔧 DEBUG INFO:</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <p><span className="text-yellow-300">Medusa URL:</span> {envInfo.medusaUrl}</p>
-                            <p><span className="text-yellow-300">API Key Present:</span> {envInfo.hasApiKey ? '✅' : '❌'}</p>
-                            <p><span className="text-yellow-300">API Key Length:</span> {envInfo.apiKeyLength}</p>
-                            <p><span className="text-yellow-300">API Key Valid:</span> {envInfo.apiKeyValid ? '✅' : '❌'}</p>
-                        </div>
-                        <div>
-                            <p><span className="text-green-300">Connection:</span> {connectionResult.success ? '✅ SUCCESS' : '❌ FAILED'}</p>
-                            {connectionResult.error && (
-                                <p><span className="text-red-300">Error:</span> {connectionResult.error}</p>
-                            )}
-                            <p><span className="text-blue-300">Products Found:</span> {products.length}</p>
-                            <p><span className="text-blue-300">Collections Found:</span> {collections.length}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div>
+            <Navbar />
 
-            {/* Error Display */}
-            {!connectionResult.success && (
-                <div className="bg-red-50 border-l-4 border-red-400 p-4">
-                    <div className="max-w-7xl mx-auto">
-                        <div className="flex">
-                            <div className="flex-shrink-0">
-                                <div className="text-2xl">🚨</div>
-                            </div>
-                            <div className="ml-3">
-                                <h3 className="text-lg font-medium text-red-800">API Connectie Probleem</h3>
-                                <div className="mt-2 text-sm text-red-700">
-                                    <p className="mb-2"><strong>Error:</strong> {connectionResult.error}</p>
-
-                                    <div className="bg-white rounded p-3 border">
-                                        <p className="font-medium mb-2">Controleer deze dingen:</p>
-                                        <ol className="list-decimal list-inside space-y-1">
-                                            <li>Is je .env.local bestand in de juiste map? (niet .env.local.local!)</li>
-                                            <li>Draait Medusa backend op <a href="http://localhost:9000" target="_blank" className="underline text-blue-600">http://localhost:9000</a>?</li>
-                                            <li>Is je API key correct? (moet beginnen met pk_)</li>
-                                            <li>Heb je Next.js herstart na het maken van .env.local?</li>
-                                        </ol>
-                                    </div>
-
-                                    <div className="mt-3 space-x-2">
-                                        <a
-                                            href="http://localhost:9000/store/products"
-                                            target="_blank"
-                                            className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
-                                        >
-                                            Test Medusa Direct
-                                        </a>
-                                        <a
-                                            href="http://localhost:7001"
-                                            target="_blank"
-                                            className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700"
-                                        >
-                                            Open Admin
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Success State */}
-            {connectionResult.success && (
-                <div className="bg-green-50 border-l-4 border-green-400 p-4">
-                    <div className="max-w-7xl mx-auto">
-                        <div className="flex">
-                            <div className="text-2xl mr-3">✅</div>
-                            <div>
-                                <h3 className="text-lg font-medium text-green-800">Medusa Connectie Succesvol!</h3>
-                                <p className="text-sm text-green-700">
-                                    Gevonden: {products.length} producten, {collections.length} collecties
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Header */}
-            <header className="bg-white shadow-sm">
-                <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-                    <h1 className="text-2xl font-bold text-amber-700">Chador Collection</h1>
-                    <nav className="flex items-center space-x-6">
-                        <Link href="/" className="text-gray-700 hover:text-amber-600">Home</Link>
-                        <Link href="/products" className="text-gray-700 hover:text-amber-600">Producten</Link>
-                        <Link href="/contact" className="text-gray-700 hover:text-amber-600">Contact</Link>
-                        <CartHeaderButton />
-                    </nav>
-                </div>
-            </header>
-
-            {/* Hero Section */}
-            <section className="bg-gradient-to-r from-amber-50 to-orange-50 py-20">
-                <div className="max-w-7xl mx-auto px-4 text-center">
-                    <h1 className="text-5xl font-bold text-gray-900 mb-6">
-                        Chador Collection
-                    </h1>
-                    <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-                        Premium islamitische kleding waar traditie en moderne elegantie samenkomen
-                    </p>
-                    <Link
-                        href="#products"
-                        className="bg-amber-600 text-white px-8 py-3 rounded-lg font-medium hover:bg-amber-700 transition-colors"
-                    >
+            {/* Hero Header */}
+            <section className="section" style={{ background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)' }}>
+                <div className="container text-center">
+                    <h1 className="text-3xl mb-6">Welkom bij EleganteKleding</h1>
+                    <p className="text-large mb-8">Premium kleding voor elke gelegenheid. Ontdek onze exclusieve collectie.</p>
+                    <Link href="#featured" className="btn btn-primary">
                         Bekijk Collectie
                     </Link>
                 </div>
             </section>
 
-            {/* Products Section */}
-            <section id="products" className="py-16">
-                <div className="max-w-7xl mx-auto px-4">
-                    <h2 className="text-3xl font-bold text-center mb-12">Onze Producten</h2>
+            {/* Featured Products */}
+            <section id="featured" className="section">
+                <div className="container">
+                    <h2 className="text-2xl text-center mb-8">Uitgelichte Producten</h2>
 
-                    {connectionResult.success && products.length === 0 && (
-                        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-8 text-center">
-                            <div className="text-6xl mb-4">📦</div>
-                            <h3 className="text-xl font-semibold text-yellow-800 mb-2">Nog geen producten</h3>
-                            <p className="text-yellow-700 mb-4">Je Medusa backend werkt, maar er zijn nog geen producten toegevoegd.</p>
-                            <a
-                                href="http://localhost:7001"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="bg-yellow-600 text-white px-6 py-2 rounded-lg hover:bg-yellow-700 transition-colors inline-block"
-                            >
-                                Voeg Producten Toe in Admin
+                    {products.length === 0 ? (
+                        <div className="text-center">
+                            <p className="text-large mb-6">Geen producten gevonden. Voeg producten toe via de admin.</p>
+                            <a href="http://localhost:7001" target="_blank" className="btn btn-primary">
+                                Open Admin Dashboard
                             </a>
+                        </div>
+                    ) : (
+                        <div className="grid-4">
+                            {products.slice(0, 8).map((product) => {
+                                const variant = product.variants?.[0]
+                                const price = variant ? getVariantPrice(variant) : 0
+
+                                return (
+                                    <div key={product.id} className="product-card">
+                                        <Link href={`/products/${product.handle}`}>
+                                            {product.thumbnail ? (
+                                                <Image
+                                                    src={product.thumbnail}
+                                                    alt={product.title}
+                                                    width={300}
+                                                    height={250}
+                                                    className="product-image"
+                                                />
+                                            ) : (
+                                                <div className="product-image" style={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    backgroundColor: '#f8f9fa'
+                                                }}>
+                                                    <span>Geen afbeelding</span>
+                                                </div>
+                                            )}
+                                        </Link>
+
+                                        <div className="product-info">
+                                            <h3 className="product-title">{product.title}</h3>
+                                            {product.description && (
+                                                <p className="mb-4" style={{ color: '#666666', fontSize: '14px' }}>
+                                                    {product.description.substring(0, 100)}...
+                                                </p>
+                                            )}
+                                            <div className="product-price">
+                                                {price > 0 ? formatPrice(price) : 'Prijs op aanvraag'}
+                                            </div>
+
+                                            <div style={{ display: 'flex', gap: '10px' }}>
+                                                <Link href={`/products/${product.handle}`} className="btn btn-secondary" style={{ flex: 1 }}>
+                                                    Bekijken
+                                                </Link>
+                                                {variant && price > 0 && (
+                                                    <AddToCartButton
+                                                        variantId={variant.id}
+                                                        className="btn btn-primary"
+                                                        style={{ flex: 1 }}
+                                                    >
+                                                        In Winkelwagen
+                                                    </AddToCartButton>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )
+                            })}
                         </div>
                     )}
 
-                    {products.length > 0 && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                            {products.map((product) => (
-                                <div key={product.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow border">
-                                    <div className="aspect-square bg-gray-100 relative">
-                                        <ProductImage
-                                            src={product.thumbnail}
-                                            alt={product.title}
-                                        />
-                                    </div>
-                                    <div className="p-4">
-                                        <h3 className="font-semibold text-lg mb-2">{product.title}</h3>
-                                        {product.description && (
-                                            <p className="text-gray-600 text-sm mb-3">
-                                                {product.description.substring(0, 100)}...
-                                            </p>
-                                        )}
-                                        {product.variants?.[0]?.prices?.[0] && (
-                                            <p className="text-amber-600 font-bold text-lg mb-3">
-                                                €{(product.variants[0].prices[0].amount / 100).toFixed(2)}
-                                            </p>
-                                        )}
-                                        <Link
-                                            href={`/products/${product.handle}`}
-                                            className="block w-full bg-gray-900 text-white text-center py-2 rounded hover:bg-gray-800 transition-colors"
-                                        >
-                                            Bekijk Product
-                                        </Link>
-                                    </div>
-                                </div>
-                            ))}
+                    {products.length > 8 && (
+                        <div className="text-center mt-8">
+                            <Link href="/products" className="btn btn-primary">
+                                Bekijk Alle Producten
+                            </Link>
                         </div>
                     )}
                 </div>
             </section>
+
+            {/* Over Ons */}
+            <section className="section section-gray">
+                <div className="container">
+                    <div className="grid-3">
+                        <div className="text-center">
+                            <h3 className="text-xl mb-4">Onze Missie</h3>
+                            <p>Wij geloven dat iedereen recht heeft op mooie, kwaliteitsvolle kleding. Daarom bieden wij premium fashion tegen eerlijke prijzen.</p>
+                        </div>
+                        <div className="text-center">
+                            <h3 className="text-xl mb-4">Kwaliteit</h3>
+                            <p>Alle onze producten worden zorgvuldig geselecteerd en getest. Alleen de beste materialen en vakmanschap komen in onze collectie.</p>
+                        </div>
+                        <div className="text-center">
+                            <h3 className="text-xl mb-4">Service</h3>
+                            <p>Ons team staat altijd klaar om je te helpen. Van styling advies tot na-verkoop service, wij zorgen voor een perfecte ervaring.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Categorieën */}
+            <section className="section">
+                <div className="container">
+                    <h2 className="text-2xl text-center mb-8">Shop per Categorie</h2>
+                    <div className="grid-3">
+                        <div className="card text-center">
+                            <h3 className="text-xl mb-4">👕 T-Shirts & Tops</h3>
+                            <p className="mb-6">Comfortabele en stijlvolle bovenstukken voor elke dag.</p>
+                            <Link href="/categories/shirts" className="btn btn-primary">
+                                Bekijk T-Shirts
+                            </Link>
+                        </div>
+                        <div className="card text-center">
+                            <h3 className="text-xl mb-4">👖 Broeken & Jeans</h3>
+                            <p className="mb-6">Van casual jeans tot elegante pantalons.</p>
+                            <Link href="/categories/pants" className="btn btn-primary">
+                                Bekijk Broeken
+                            </Link>
+                        </div>
+                        <div className="card text-center">
+                            <h3 className="text-xl mb-4">👗 Jurken & Rokken</h3>
+                            <p className="mb-6">Elegante jurken voor speciale gelegenheden.</p>
+                            <Link href="/categories/dresses" className="btn btn-primary">
+                                Bekijk Jurken
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Contact Form */}
+            <section className="section section-gray">
+                <div className="container">
+                    <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+                        <h2 className="text-2xl text-center mb-8">Neem Contact Op</h2>
+                        <form className="card">
+                            <div className="form-group">
+                                <label className="form-label">Naam *</label>
+                                <input
+                                    type="text"
+                                    className="form-input"
+                                    placeholder="Je volledige naam"
+                                    required
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label className="form-label">E-mail *</label>
+                                <input
+                                    type="email"
+                                    className="form-input"
+                                    placeholder="je@email.com"
+                                    required
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label className="form-label">Onderwerp</label>
+                                <input
+                                    type="text"
+                                    className="form-input"
+                                    placeholder="Waar gaat je bericht over?"
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label className="form-label">Bericht *</label>
+                                <textarea
+                                    className="form-input form-textarea"
+                                    placeholder="Typ hier je bericht..."
+                                    required
+                                ></textarea>
+                            </div>
+
+                            <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
+                                Bericht Versturen
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <Footer />
         </div>
     )
 }

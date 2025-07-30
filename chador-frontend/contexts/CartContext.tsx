@@ -1,291 +1,191 @@
-// contexts/CartContext.tsx - Professional cart context
+// contexts/CartContext.tsx - Professional Cart Context
 'use client'
 
 import React, { createContext, useContext, useReducer, useEffect, useCallback } from 'react'
+import { medusaClient, Cart, formatPrice } from '@/lib/medusa'
 
-// Types
-export interface CartItem {
-    id: string
-    productId: string
-    variantId: string
-    productTitle: string
-    variantTitle: string
-    price: number
-    currency: string
-    quantity: number
-    thumbnail?: string
-    maxQuantity?: number
-    handle?: string
-}
-
-export interface CartState {
-    items: CartItem[]
-    isOpen: boolean
+interface CartState {
+    cart: Cart | null
     isLoading: boolean
-    totalItems: number
-    totalPrice: number
-    lastAddedItem?: CartItem
+    isOpen: boolean
+    error: string | null
 }
 
-// Actions
 type CartAction =
     | { type: 'SET_LOADING'; payload: boolean }
-    | { type: 'ADD_ITEM'; payload: Omit<CartItem, 'id'> }
-    | { type: 'REMOVE_ITEM'; payload: string }
-    | { type: 'UPDATE_QUANTITY'; payload: { id: string; quantity: number } }
-    | { type: 'CLEAR_CART' }
+    | { type: 'SET_CART'; payload: Cart | null }
+    | { type: 'SET_ERROR'; payload: string | null }
     | { type: 'TOGGLE_CART' }
     | { type: 'OPEN_CART' }
     | { type: 'CLOSE_CART' }
-    | { type: 'LOAD_CART'; payload: CartItem[] }
-    | { type: 'SET_LAST_ADDED'; payload: CartItem }
 
-// Initial state
 const initialState: CartState = {
-    items: [],
-    isOpen: false,
+    cart: null,
     isLoading: false,
-    totalItems: 0,
-    totalPrice: 0,
+    isOpen: false,
+    error: null,
 }
 
-// Reducer with better error handling
 function cartReducer(state: CartState, action: CartAction): CartState {
-    try {
-        switch (action.type) {
-            case 'SET_LOADING':
-                return {
-                    ...state,
-                    isLoading: action.payload
-                }
+    switch (action.type) {
+        case 'SET_LOADING':
+            return { ...state, isLoading: action.payload }
 
-            case 'ADD_ITEM': {
-                const existingItemIndex = state.items.findIndex(
-                    item => item.variantId === action.payload.variantId
-                )
+        case 'SET_CART':
+            return { ...state, cart: action.payload, error: null }
 
-                let newItems: CartItem[]
-                let lastAddedItem: CartItem
+        case 'SET_ERROR':
+            return { ...state, error: action.payload, isLoading: false }
 
-                if (existingItemIndex >= 0) {
-                    // Update existing item quantity
-                    newItems = state.items.map((item, index) =>
-                        index === existingItemIndex
-                            ? { ...item, quantity: item.quantity + action.payload.quantity }
-                            : item
-                    )
-                    lastAddedItem = newItems[existingItemIndex]
-                } else {
-                    // Add new item
-                    lastAddedItem = {
-                        ...action.payload,
-                        id: `${action.payload.variantId}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-                    }
-                    newItems = [...state.items, lastAddedItem]
-                }
+        case 'TOGGLE_CART':
+            return { ...state, isOpen: !state.isOpen }
 
-                const totalItems = newItems.reduce((sum, item) => sum + item.quantity, 0)
-                const totalPrice = newItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+        case 'OPEN_CART':
+            return { ...state, isOpen: true }
 
-                return {
-                    ...state,
-                    items: newItems,
-                    totalItems,
-                    totalPrice,
-                    lastAddedItem,
-                    isOpen: true,
-                    isLoading: false
-                }
-            }
+        case 'CLOSE_CART':
+            return { ...state, isOpen: false }
 
-            case 'REMOVE_ITEM': {
-                const newItems = state.items.filter(item => item.id !== action.payload)
-                const totalItems = newItems.reduce((sum, item) => sum + item.quantity, 0)
-                const totalPrice = newItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)
-
-                return {
-                    ...state,
-                    items: newItems,
-                    totalItems,
-                    totalPrice
-                }
-            }
-
-            case 'UPDATE_QUANTITY': {
-                const newItems = state.items.map(item =>
-                    item.id === action.payload.id
-                        ? { ...item, quantity: Math.max(0, action.payload.quantity) }
-                        : item
-                ).filter(item => item.quantity > 0)
-
-                const totalItems = newItems.reduce((sum, item) => sum + item.quantity, 0)
-                const totalPrice = newItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)
-
-                return {
-                    ...state,
-                    items: newItems,
-                    totalItems,
-                    totalPrice
-                }
-            }
-
-            case 'CLEAR_CART':
-                return {
-                    ...state,
-                    items: [],
-                    totalItems: 0,
-                    totalPrice: 0,
-                    lastAddedItem: undefined
-                }
-
-            case 'TOGGLE_CART':
-                return {
-                    ...state,
-                    isOpen: !state.isOpen
-                }
-
-            case 'OPEN_CART':
-                return {
-                    ...state,
-                    isOpen: true
-                }
-
-            case 'CLOSE_CART':
-                return {
-                    ...state,
-                    isOpen: false
-                }
-
-            case 'LOAD_CART': {
-                const totalItems = action.payload.reduce((sum, item) => sum + item.quantity, 0)
-                const totalPrice = action.payload.reduce((sum, item) => sum + (item.price * item.quantity), 0)
-
-                return {
-                    ...state,
-                    items: action.payload,
-                    totalItems,
-                    totalPrice,
-                    isLoading: false
-                }
-            }
-
-            case 'SET_LAST_ADDED':
-                return {
-                    ...state,
-                    lastAddedItem: action.payload
-                }
-
-            default:
-                console.warn('Unknown action type:', action)
-                return state
-        }
-    } catch (error) {
-        console.error('Cart reducer error:', error)
-        return {
-            ...state,
-            isLoading: false
-        }
+        default:
+            return state
     }
 }
 
-// Context
 interface CartContextType {
     state: CartState
-    dispatch: React.Dispatch<CartAction>
-    addItem: (item: Omit<CartItem, 'id'>) => Promise<void>
-    removeItem: (id: string) => void
-    updateQuantity: (id: string, quantity: number) => void
-    clearCart: () => void
+    addToCart: (variantId: string, quantity?: number) => Promise<void>
+    updateCartItem: (lineItemId: string, quantity: number) => Promise<void>
+    removeFromCart: (lineItemId: string) => Promise<void>
     toggleCart: () => void
     openCart: () => void
     closeCart: () => void
-    getCartCount: () => number
-    getCartTotal: () => number
-    isInCart: (variantId: string) => boolean
+    getTotalItems: () => number
+    getTotalPrice: () => string
 }
 
 const CartContext = createContext<CartContextType | null>(null)
 
-// Provider
 export function CartProvider({ children }: { children: React.ReactNode }) {
     const [state, dispatch] = useReducer(cartReducer, initialState)
 
-    // Load cart from localStorage on mount
+    // Initialize cart
     useEffect(() => {
-        let isMounted = true
+        initializeCart()
+    }, [])
 
-        const loadCart = async () => {
+    const initializeCart = useCallback(async () => {
+        dispatch({ type: 'SET_LOADING', payload: true })
+
+        try {
+            // Check for existing cart in localStorage
+            const existingCartId = localStorage.getItem('medusa_cart_id')
+            let cart: Cart | null = null
+
+            if (existingCartId) {
+                // Try to retrieve existing cart
+                try {
+                    cart = await medusaClient.getCart(existingCartId)
+                } catch (error) {
+                    console.warn('Failed to retrieve existing cart, will create new one:', error)
+                    localStorage.removeItem('medusa_cart_id')
+                }
+            }
+
+            if (!cart) {
+                // Create new cart if none exists
+                try {
+                    cart = await medusaClient.createCart()
+                    if (cart) {
+                        localStorage.setItem('medusa_cart_id', cart.id)
+                    }
+                } catch (error) {
+                    console.warn('Failed to create cart - backend might not be running:', error)
+                    // Don't throw error, just continue without cart for now
+                }
+            }
+
+            dispatch({ type: 'SET_CART', payload: cart })
+        } catch (error) {
+            console.warn('Cart initialization failed - continuing without cart:', error)
+            dispatch({ type: 'SET_ERROR', payload: 'Winkelwagen niet beschikbaar (backend niet bereikbaar)' })
+        } finally {
+            dispatch({ type: 'SET_LOADING', payload: false })
+        }
+    }, [])
+
+    const addToCart = useCallback(async (variantId: string, quantity: number = 1) => {
+        if (!state.cart) {
+            // Try to create cart if it doesn't exist
             try {
                 dispatch({ type: 'SET_LOADING', payload: true })
-
-                const savedCart = localStorage.getItem('chador-cart')
-                if (savedCart && isMounted) {
-                    const cartItems = JSON.parse(savedCart)
-                    if (Array.isArray(cartItems)) {
-                        dispatch({ type: 'LOAD_CART', payload: cartItems })
-                    }
+                const newCart = await medusaClient.createCart()
+                if (newCart) {
+                    dispatch({ type: 'SET_CART', payload: newCart })
+                    localStorage.setItem('medusa_cart_id', newCart.id)
+                } else {
+                    throw new Error('Could not create cart')
                 }
             } catch (error) {
-                console.error('Error loading cart from localStorage:', error)
-            } finally {
-                if (isMounted) {
-                    dispatch({ type: 'SET_LOADING', payload: false })
-                }
+                dispatch({ type: 'SET_ERROR', payload: 'Kan geen winkelwagen maken - controleer backend connectie' })
+                dispatch({ type: 'SET_LOADING', payload: false })
+                return
             }
         }
 
-        loadCart()
+        dispatch({ type: 'SET_LOADING', payload: true })
 
-        return () => {
-            isMounted = false
-        }
-    }, [])
-
-    // Save cart to localStorage whenever items change
-    useEffect(() => {
         try {
-            localStorage.setItem('chador-cart', JSON.stringify(state.items))
-        } catch (error) {
-            console.error('Error saving cart to localStorage:', error)
-        }
-    }, [state.items])
-
-    // Helper functions
-    const addItem = useCallback(async (item: Omit<CartItem, 'id'>) => {
-        try {
-            dispatch({ type: 'SET_LOADING', payload: true })
-
-            // Validate item
-            if (!item.variantId || !item.productId || !item.productTitle || item.price <= 0) {
-                throw new Error('Invalid item data')
+            const cartId = state.cart?.id
+            if (!cartId) {
+                throw new Error('No cart available')
             }
 
-            // Simulate API call (vervang later met echte Medusa API)
-            await new Promise(resolve => setTimeout(resolve, 300))
-
-            dispatch({ type: 'ADD_ITEM', payload: item })
-
-            // Log for debugging
-            console.log('Item added to cart:', item)
-
+            const updatedCart = await medusaClient.addToCart(cartId, variantId, quantity)
+            dispatch({ type: 'SET_CART', payload: updatedCart })
+            dispatch({ type: 'OPEN_CART' })
         } catch (error) {
-            console.error('Error adding item to cart:', error)
+            dispatch({ type: 'SET_ERROR', payload: 'Kon item niet toevoegen aan winkelwagen' })
+            console.error('Add to cart failed:', error)
+        } finally {
             dispatch({ type: 'SET_LOADING', payload: false })
-            throw error
         }
-    }, [])
+    }, [state.cart])
 
-    const removeItem = useCallback((id: string) => {
-        dispatch({ type: 'REMOVE_ITEM', payload: id })
-    }, [])
+    const updateCartItem = useCallback(async (lineItemId: string, quantity: number) => {
+        if (!state.cart) return
 
-    const updateQuantity = useCallback((id: string, quantity: number) => {
-        dispatch({ type: 'UPDATE_QUANTITY', payload: { id, quantity } })
-    }, [])
+        dispatch({ type: 'SET_LOADING', payload: true })
 
-    const clearCart = useCallback(() => {
-        dispatch({ type: 'CLEAR_CART' })
-    }, [])
+        try {
+            if (quantity === 0) {
+                await removeFromCart(lineItemId)
+            } else {
+                const updatedCart = await medusaClient.updateCartItem(state.cart.id, lineItemId, quantity)
+                dispatch({ type: 'SET_CART', payload: updatedCart })
+            }
+        } catch (error) {
+            dispatch({ type: 'SET_ERROR', payload: 'Failed to update cart item' })
+            console.error('Update cart item failed:', error)
+        } finally {
+            dispatch({ type: 'SET_LOADING', payload: false })
+        }
+    }, [state.cart])
+
+    const removeFromCart = useCallback(async (lineItemId: string) => {
+        if (!state.cart) return
+
+        dispatch({ type: 'SET_LOADING', payload: true })
+
+        try {
+            const updatedCart = await medusaClient.removeFromCart(state.cart.id, lineItemId)
+            dispatch({ type: 'SET_CART', payload: updatedCart })
+        } catch (error) {
+            dispatch({ type: 'SET_ERROR', payload: 'Failed to remove item from cart' })
+            console.error('Remove from cart failed:', error)
+        } finally {
+            dispatch({ type: 'SET_LOADING', payload: false })
+        }
+    }, [state.cart])
 
     const toggleCart = useCallback(() => {
         dispatch({ type: 'TOGGLE_CART' })
@@ -299,66 +199,38 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         dispatch({ type: 'CLOSE_CART' })
     }, [])
 
-    const getCartCount = useCallback(() => {
-        return state.totalItems
-    }, [state.totalItems])
+    const getTotalItems = useCallback(() => {
+        return state.cart?.items?.reduce((total, item) => total + item.quantity, 0) ?? 0
+    }, [state.cart])
 
-    const getCartTotal = useCallback(() => {
-        return state.totalPrice
-    }, [state.totalPrice])
+    const getTotalPrice = useCallback(() => {
+        if (!state.cart) return formatPrice(0)
+        return formatPrice(state.cart.total, state.cart.region.currency_code)
+    }, [state.cart])
 
-    const isInCart = useCallback((variantId: string) => {
-        return state.items.some(item => item.variantId === variantId)
-    }, [state.items])
-
-    const contextValue: CartContextType = {
+    const value: CartContextType = {
         state,
-        dispatch,
-        addItem,
-        removeItem,
-        updateQuantity,
-        clearCart,
+        addToCart,
+        updateCartItem,
+        removeFromCart,
         toggleCart,
         openCart,
         closeCart,
-        getCartCount,
-        getCartTotal,
-        isInCart
+        getTotalItems,
+        getTotalPrice,
     }
 
     return (
-        <CartContext.Provider value={contextValue}>
+        <CartContext.Provider value={value}>
             {children}
         </CartContext.Provider>
     )
 }
 
-// Hook to use cart
 export function useCart() {
     const context = useContext(CartContext)
     if (!context) {
         throw new Error('useCart must be used within a CartProvider')
     }
     return context
-}
-
-// Helper functions
-export function formatPrice(amount: number, currency: string = 'EUR'): string {
-    try {
-        return new Intl.NumberFormat('nl-NL', {
-            style: 'currency',
-            currency: currency,
-        }).format(amount / 100)
-    } catch (error) {
-        console.error('Error formatting price:', error)
-        return `€${(amount / 100).toFixed(2)}`
-    }
-}
-
-export function calculateCartTotal(items: CartItem[]): number {
-    return items.reduce((total, item) => total + (item.price * item.quantity), 0)
-}
-
-export function getCartItemCount(items: CartItem[]): number {
-    return items.reduce((total, item) => total + item.quantity, 0)
 }

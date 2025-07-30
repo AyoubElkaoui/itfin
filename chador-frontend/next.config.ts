@@ -16,6 +16,10 @@ const nextConfig = {
             },
             {
                 protocol: 'https',
+                hostname: 'images.unsplash.com',
+            },
+            {
+                protocol: 'https',
                 hostname: 'medusa-server-test-bucket.s3.us-east-1.amazonaws.com',
                 port: '',
                 pathname: '/**',

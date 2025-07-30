@@ -1,21 +1,34 @@
-// app/layout.tsx - Professionele root layout
+// app/layout.tsx - Professional Root Layout
 import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
 import './globals.css'
 import { CartProvider } from '@/contexts/CartContext'
 import CartSidebar from '@/components/CartSidebar'
 
+const inter = Inter({ subsets: ['latin'] })
+
 export const metadata: Metadata = {
-    title: 'Chador Collection - Premium Islamitische Mode',
-    description: 'Premium islamitische kleding waar traditie en moderne elegantie samenkomen',
-    keywords: 'chador, hijab, islamitische kleding, modest fashion, premium kwaliteit',
-    authors: [{ name: 'Chador Collection' }],
-    viewport: 'width=device-width, initial-scale=1',
+    title: 'Elegante Kleding - Premium Fashion Online',
+    description: 'Ontdek onze exclusieve collectie van hoogwaardige kleding. Stijl en comfort perfect gecombineerd.',
+    keywords: 'kleding, fashion, premium, online winkel, stijl, kwaliteit',
+    authors: [{ name: 'Elegante Kleding' }],
     openGraph: {
-        title: 'Chador Collection - Premium Islamitische Mode',
-        description: 'Elegantie in Eenvoud - Ontdek onze exclusieve collectie',
+        title: 'Elegante Kleding - Premium Fashion Online',
+        description: 'Ontdek onze exclusieve collectie van hoogwaardige kleding',
         type: 'website',
         locale: 'nl_NL',
     },
+    robots: {
+        index: true,
+        follow: true,
+    },
+}
+
+export function generateViewport() {
+    return {
+        width: 'device-width',
+        initialScale: 1,
+    }
 }
 
 export default function RootLayout({
@@ -25,7 +38,7 @@ export default function RootLayout({
 }) {
     return (
         <html lang="nl" className="scroll-smooth">
-        <body className="bg-chador-warm-white text-chador-black antialiased">
+        <body className={`${inter.className} bg-white text-gray-900 antialiased`}>
         <CartProvider>
             <div className="min-h-screen flex flex-col">
                 <main className="flex-1">
