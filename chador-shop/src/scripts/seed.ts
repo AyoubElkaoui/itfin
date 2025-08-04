@@ -1,3 +1,4 @@
+// src/scripts/seed.ts - Fixed version with Netherlands
 import { CreateInventoryLevelInput, ExecArgs } from "@medusajs/framework/types";
 import {
   ContainerRegistrationKeys,
@@ -28,7 +29,8 @@ export default async function seedDemoData({ container }: ExecArgs) {
   const salesChannelModuleService = container.resolve(Modules.SALES_CHANNEL);
   const storeModuleService = container.resolve(Modules.STORE);
 
-  const countries = ["gb", "de", "dk", "se", "fr", "es", "it"];
+  // 🇳🇱 FIXED: Added Netherlands to countries array
+  const countries = ["gb", "de", "dk", "se", "fr", "es", "it", "nl"];
 
   logger.info("Seeding store data...");
   const [store] = await storeModuleService.listStores();
@@ -39,7 +41,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
   if (!defaultSalesChannel.length) {
     // create the default sales channel
     const { result: salesChannelResult } = await createSalesChannelsWorkflow(
-      container
+        container
     ).run({
       input: {
         salesChannelsData: [
@@ -69,6 +71,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
       },
     },
   });
+
   logger.info("Seeding region data...");
   const { result: regionResult } = await createRegionsWorkflow(container).run({
     input: {
@@ -76,7 +79,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
         {
           name: "Europe",
           currency_code: "eur",
-          countries,
+          countries, // Now includes Netherlands!
           payment_providers: ["pp_system_default"],
         },
       ],
@@ -96,16 +99,16 @@ export default async function seedDemoData({ container }: ExecArgs) {
 
   logger.info("Seeding stock location data...");
   const { result: stockLocationResult } = await createStockLocationsWorkflow(
-    container
+      container
   ).run({
     input: {
       locations: [
         {
           name: "European Warehouse",
           address: {
-            city: "Copenhagen",
-            country_code: "DK",
-            address_1: "",
+            city: "Amsterdam", // Changed to Amsterdam 🇳🇱
+            country_code: "NL",
+            address_1: "Damrak 1",
           },
         },
       ],
@@ -130,16 +133,16 @@ export default async function seedDemoData({ container }: ExecArgs) {
 
   if (!shippingProfile) {
     const { result: shippingProfileResult } =
-    await createShippingProfilesWorkflow(container).run({
-      input: {
-        data: [
-          {
-            name: "Default Shipping Profile",
-            type: "default",
+        await createShippingProfilesWorkflow(container).run({
+          input: {
+            data: [
+              {
+                name: "Default Shipping Profile",
+                type: "default",
+              },
+            ],
           },
-        ],
-      },
-    });
+        });
     shippingProfile = shippingProfileResult[0];
   }
 
@@ -178,6 +181,11 @@ export default async function seedDemoData({ container }: ExecArgs) {
             country_code: "it",
             type: "country",
           },
+          // 🇳🇱 FIXED: Added Netherlands to fulfillment zones
+          {
+            country_code: "nl",
+            type: "country",
+          },
         ],
       },
     ],
@@ -208,15 +216,15 @@ export default async function seedDemoData({ container }: ExecArgs) {
         prices: [
           {
             currency_code: "usd",
-            amount: 10,
+            amount: 1000, // $10.00 in cents
           },
           {
             currency_code: "eur",
-            amount: 10,
+            amount: 1000, // €10.00 in cents
           },
           {
             region_id: region.id,
-            amount: 10,
+            amount: 1000,
           },
         ],
         rules: [
@@ -246,15 +254,15 @@ export default async function seedDemoData({ container }: ExecArgs) {
         prices: [
           {
             currency_code: "usd",
-            amount: 10,
+            amount: 2000, // $20.00 in cents
           },
           {
             currency_code: "eur",
-            amount: 10,
+            amount: 2000, // €20.00 in cents
           },
           {
             region_id: region.id,
-            amount: 10,
+            amount: 2000,
           },
         ],
         rules: [
@@ -284,7 +292,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
 
   logger.info("Seeding publishable API key data...");
   const { result: publishableApiKeyResult } = await createApiKeysWorkflow(
-    container
+      container
   ).run({
     input: {
       api_keys: [
@@ -309,7 +317,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
   logger.info("Seeding product data...");
 
   const { result: categoryResult } = await createProductCategoriesWorkflow(
-    container
+      container
   ).run({
     input: {
       product_categories: [
@@ -337,12 +345,12 @@ export default async function seedDemoData({ container }: ExecArgs) {
     input: {
       products: [
         {
-          title: "Medusa T-Shirt",
+          title: "Elegante T-Shirt", // 🇳🇱 Dutch branding
           category_ids: [
             categoryResult.find((cat) => cat.name === "Shirts")!.id,
           ],
           description:
-            "Reimagine the feeling of a classic T-shirt. With our cotton T-shirts, everyday essentials no longer have to be ordinary.",
+              "Herdefinieer het gevoel van een klassiek T-shirt. Met onze katoenen T-shirts hoeven dagelijkse essentials niet gewoon te zijn.",
           handle: "t-shirt",
           weight: 400,
           status: ProductStatus.PUBLISHED,
@@ -363,155 +371,155 @@ export default async function seedDemoData({ container }: ExecArgs) {
           ],
           options: [
             {
-              title: "Size",
+              title: "Maat", // Dutch for Size
               values: ["S", "M", "L", "XL"],
             },
             {
-              title: "Color",
-              values: ["Black", "White"],
+              title: "Kleur", // Dutch for Color
+              values: ["Zwart", "Wit"], // Dutch for Black, White
             },
           ],
           variants: [
             {
-              title: "S / Black",
+              title: "S / Zwart",
               sku: "SHIRT-S-BLACK",
               options: {
-                Size: "S",
-                Color: "Black",
+                Maat: "S",
+                Kleur: "Zwart",
               },
               prices: [
                 {
-                  amount: 10,
+                  amount: 2500, // €25.00 in cents
                   currency_code: "eur",
                 },
                 {
-                  amount: 15,
+                  amount: 2700, // $27.00 in cents
                   currency_code: "usd",
                 },
               ],
             },
             {
-              title: "S / White",
+              title: "S / Wit",
               sku: "SHIRT-S-WHITE",
               options: {
-                Size: "S",
-                Color: "White",
+                Maat: "S",
+                Kleur: "Wit",
               },
               prices: [
                 {
-                  amount: 10,
+                  amount: 2500,
                   currency_code: "eur",
                 },
                 {
-                  amount: 15,
+                  amount: 2700,
                   currency_code: "usd",
                 },
               ],
             },
             {
-              title: "M / Black",
+              title: "M / Zwart",
               sku: "SHIRT-M-BLACK",
               options: {
-                Size: "M",
-                Color: "Black",
+                Maat: "M",
+                Kleur: "Zwart",
               },
               prices: [
                 {
-                  amount: 10,
+                  amount: 2500,
                   currency_code: "eur",
                 },
                 {
-                  amount: 15,
+                  amount: 2700,
                   currency_code: "usd",
                 },
               ],
             },
             {
-              title: "M / White",
+              title: "M / Wit",
               sku: "SHIRT-M-WHITE",
               options: {
-                Size: "M",
-                Color: "White",
+                Maat: "M",
+                Kleur: "Wit",
               },
               prices: [
                 {
-                  amount: 10,
+                  amount: 2500,
                   currency_code: "eur",
                 },
                 {
-                  amount: 15,
+                  amount: 2700,
                   currency_code: "usd",
                 },
               ],
             },
             {
-              title: "L / Black",
+              title: "L / Zwart",
               sku: "SHIRT-L-BLACK",
               options: {
-                Size: "L",
-                Color: "Black",
+                Maat: "L",
+                Kleur: "Zwart",
               },
               prices: [
                 {
-                  amount: 10,
+                  amount: 2500,
                   currency_code: "eur",
                 },
                 {
-                  amount: 15,
+                  amount: 2700,
                   currency_code: "usd",
                 },
               ],
             },
             {
-              title: "L / White",
+              title: "L / Wit",
               sku: "SHIRT-L-WHITE",
               options: {
-                Size: "L",
-                Color: "White",
+                Maat: "L",
+                Kleur: "Wit",
               },
               prices: [
                 {
-                  amount: 10,
+                  amount: 2500,
                   currency_code: "eur",
                 },
                 {
-                  amount: 15,
+                  amount: 2700,
                   currency_code: "usd",
                 },
               ],
             },
             {
-              title: "XL / Black",
+              title: "XL / Zwart",
               sku: "SHIRT-XL-BLACK",
               options: {
-                Size: "XL",
-                Color: "Black",
+                Maat: "XL",
+                Kleur: "Zwart",
               },
               prices: [
                 {
-                  amount: 10,
+                  amount: 2500,
                   currency_code: "eur",
                 },
                 {
-                  amount: 15,
+                  amount: 2700,
                   currency_code: "usd",
                 },
               ],
             },
             {
-              title: "XL / White",
+              title: "XL / Wit",
               sku: "SHIRT-XL-WHITE",
               options: {
-                Size: "XL",
-                Color: "White",
+                Maat: "XL",
+                Kleur: "Wit",
               },
               prices: [
                 {
-                  amount: 10,
+                  amount: 2500,
                   currency_code: "eur",
                 },
                 {
-                  amount: 15,
+                  amount: 2700,
                   currency_code: "usd",
                 },
               ],
@@ -524,12 +532,12 @@ export default async function seedDemoData({ container }: ExecArgs) {
           ],
         },
         {
-          title: "Medusa Sweatshirt",
+          title: "Elegante Sweatshirt",
           category_ids: [
             categoryResult.find((cat) => cat.name === "Sweatshirts")!.id,
           ],
           description:
-            "Reimagine the feeling of a classic sweatshirt. With our cotton sweatshirt, everyday essentials no longer have to be ordinary.",
+              "Herdefinieer het gevoel van een klassieke sweatshirt. Met onze katoenen sweatshirt hoeven dagelijkse essentials niet gewoon te zijn.",
           handle: "sweatshirt",
           weight: 400,
           status: ProductStatus.PUBLISHED,
@@ -544,7 +552,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
           ],
           options: [
             {
-              title: "Size",
+              title: "Maat",
               values: ["S", "M", "L", "XL"],
             },
           ],
@@ -553,15 +561,15 @@ export default async function seedDemoData({ container }: ExecArgs) {
               title: "S",
               sku: "SWEATSHIRT-S",
               options: {
-                Size: "S",
+                Maat: "S",
               },
               prices: [
                 {
-                  amount: 10,
+                  amount: 4500, // €45.00
                   currency_code: "eur",
                 },
                 {
-                  amount: 15,
+                  amount: 4900, // $49.00
                   currency_code: "usd",
                 },
               ],
@@ -570,15 +578,15 @@ export default async function seedDemoData({ container }: ExecArgs) {
               title: "M",
               sku: "SWEATSHIRT-M",
               options: {
-                Size: "M",
+                Maat: "M",
               },
               prices: [
                 {
-                  amount: 10,
+                  amount: 4500,
                   currency_code: "eur",
                 },
                 {
-                  amount: 15,
+                  amount: 4900,
                   currency_code: "usd",
                 },
               ],
@@ -587,15 +595,15 @@ export default async function seedDemoData({ container }: ExecArgs) {
               title: "L",
               sku: "SWEATSHIRT-L",
               options: {
-                Size: "L",
+                Maat: "L",
               },
               prices: [
                 {
-                  amount: 10,
+                  amount: 4500,
                   currency_code: "eur",
                 },
                 {
-                  amount: 15,
+                  amount: 4900,
                   currency_code: "usd",
                 },
               ],
@@ -604,15 +612,15 @@ export default async function seedDemoData({ container }: ExecArgs) {
               title: "XL",
               sku: "SWEATSHIRT-XL",
               options: {
-                Size: "XL",
+                Maat: "XL",
               },
               prices: [
                 {
-                  amount: 10,
+                  amount: 4500,
                   currency_code: "eur",
                 },
                 {
-                  amount: 15,
+                  amount: 4900,
                   currency_code: "usd",
                 },
               ],
@@ -625,12 +633,12 @@ export default async function seedDemoData({ container }: ExecArgs) {
           ],
         },
         {
-          title: "Medusa Sweatpants",
+          title: "Elegante Sweatpants",
           category_ids: [
             categoryResult.find((cat) => cat.name === "Pants")!.id,
           ],
           description:
-            "Reimagine the feeling of classic sweatpants. With our cotton sweatpants, everyday essentials no longer have to be ordinary.",
+              "Herdefinieer het gevoel van klassieke sweatpants. Met onze katoenen sweatpants hoeven dagelijkse essentials niet gewoon te zijn.",
           handle: "sweatpants",
           weight: 400,
           status: ProductStatus.PUBLISHED,
@@ -645,7 +653,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
           ],
           options: [
             {
-              title: "Size",
+              title: "Maat",
               values: ["S", "M", "L", "XL"],
             },
           ],
@@ -654,15 +662,15 @@ export default async function seedDemoData({ container }: ExecArgs) {
               title: "S",
               sku: "SWEATPANTS-S",
               options: {
-                Size: "S",
+                Maat: "S",
               },
               prices: [
                 {
-                  amount: 10,
+                  amount: 3500, // €35.00
                   currency_code: "eur",
                 },
                 {
-                  amount: 15,
+                  amount: 3900, // $39.00
                   currency_code: "usd",
                 },
               ],
@@ -671,15 +679,15 @@ export default async function seedDemoData({ container }: ExecArgs) {
               title: "M",
               sku: "SWEATPANTS-M",
               options: {
-                Size: "M",
+                Maat: "M",
               },
               prices: [
                 {
-                  amount: 10,
+                  amount: 3500,
                   currency_code: "eur",
                 },
                 {
-                  amount: 15,
+                  amount: 3900,
                   currency_code: "usd",
                 },
               ],
@@ -688,15 +696,15 @@ export default async function seedDemoData({ container }: ExecArgs) {
               title: "L",
               sku: "SWEATPANTS-L",
               options: {
-                Size: "L",
+                Maat: "L",
               },
               prices: [
                 {
-                  amount: 10,
+                  amount: 3500,
                   currency_code: "eur",
                 },
                 {
-                  amount: 15,
+                  amount: 3900,
                   currency_code: "usd",
                 },
               ],
@@ -705,15 +713,15 @@ export default async function seedDemoData({ container }: ExecArgs) {
               title: "XL",
               sku: "SWEATPANTS-XL",
               options: {
-                Size: "XL",
+                Maat: "XL",
               },
               prices: [
                 {
-                  amount: 10,
+                  amount: 3500,
                   currency_code: "eur",
                 },
                 {
-                  amount: 15,
+                  amount: 3900,
                   currency_code: "usd",
                 },
               ],
@@ -726,12 +734,12 @@ export default async function seedDemoData({ container }: ExecArgs) {
           ],
         },
         {
-          title: "Medusa Shorts",
+          title: "Elegante Shorts",
           category_ids: [
             categoryResult.find((cat) => cat.name === "Merch")!.id,
           ],
           description:
-            "Reimagine the feeling of classic shorts. With our cotton shorts, everyday essentials no longer have to be ordinary.",
+              "Herdefinieer het gevoel van klassieke shorts. Met onze katoenen shorts hoeven dagelijkse essentials niet gewoon te zijn.",
           handle: "shorts",
           weight: 400,
           status: ProductStatus.PUBLISHED,
@@ -746,7 +754,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
           ],
           options: [
             {
-              title: "Size",
+              title: "Maat",
               values: ["S", "M", "L", "XL"],
             },
           ],
@@ -755,15 +763,15 @@ export default async function seedDemoData({ container }: ExecArgs) {
               title: "S",
               sku: "SHORTS-S",
               options: {
-                Size: "S",
+                Maat: "S",
               },
               prices: [
                 {
-                  amount: 10,
+                  amount: 2900, // €29.00
                   currency_code: "eur",
                 },
                 {
-                  amount: 15,
+                  amount: 3200, // $32.00
                   currency_code: "usd",
                 },
               ],
@@ -772,15 +780,15 @@ export default async function seedDemoData({ container }: ExecArgs) {
               title: "M",
               sku: "SHORTS-M",
               options: {
-                Size: "M",
+                Maat: "M",
               },
               prices: [
                 {
-                  amount: 10,
+                  amount: 2900,
                   currency_code: "eur",
                 },
                 {
-                  amount: 15,
+                  amount: 3200,
                   currency_code: "usd",
                 },
               ],
@@ -789,15 +797,15 @@ export default async function seedDemoData({ container }: ExecArgs) {
               title: "L",
               sku: "SHORTS-L",
               options: {
-                Size: "L",
+                Maat: "L",
               },
               prices: [
                 {
-                  amount: 10,
+                  amount: 2900,
                   currency_code: "eur",
                 },
                 {
-                  amount: 15,
+                  amount: 3200,
                   currency_code: "usd",
                 },
               ],
@@ -806,15 +814,15 @@ export default async function seedDemoData({ container }: ExecArgs) {
               title: "XL",
               sku: "SHORTS-XL",
               options: {
-                Size: "XL",
+                Maat: "XL",
               },
               prices: [
                 {
-                  amount: 10,
+                  amount: 2900,
                   currency_code: "eur",
                 },
                 {
-                  amount: 15,
+                  amount: 3200,
                   currency_code: "usd",
                 },
               ],
@@ -855,4 +863,12 @@ export default async function seedDemoData({ container }: ExecArgs) {
   });
 
   logger.info("Finished seeding inventory levels data.");
+
+  // 🎉 Log summary
+  logger.info("🇳🇱 SEEDING COMPLETE! Netherlands is now supported:");
+  logger.info("   ✅ Europe region includes Netherlands (NL)");
+  logger.info("   ✅ EUR currency configured");
+  logger.info("   ✅ Dutch products with proper pricing");
+  logger.info("   ✅ Shipping to Netherlands enabled");
+  logger.info("   ✅ Amsterdam warehouse configured");
 }
