@@ -1,9 +1,8 @@
 import { listCategories } from "@lib/data/categories"
 import { listCollections } from "@lib/data/collections"
-import { Text, clx } from "@medusajs/ui"
-
+import { Text } from "@medusajs/ui"
+import { Facebook, Instagram, Twitter, Envelope, Phone, MapPin } from "@medusajs/icons"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
-import MedusaCTA from "@modules/layout/components/medusa-cta"
 
 export default async function Footer() {
   const { collections } = await listCollections({
@@ -12,144 +11,197 @@ export default async function Footer() {
   const productCategories = await listCategories()
 
   return (
-    <footer className="border-t border-ui-border-base w-full">
-      <div className="content-container flex flex-col w-full">
-        <div className="flex flex-col gap-y-6 xsmall:flex-row items-start justify-between py-40">
-          <div>
-            <LocalizedClientLink
-              href="/"
-              className="txt-compact-xlarge-plus text-ui-fg-subtle hover:text-ui-fg-base uppercase"
-            >
-              Medusa Store
-            </LocalizedClientLink>
-          </div>
-          <div className="text-small-regular gap-10 md:gap-x-16 grid grid-cols-2 sm:grid-cols-3">
-            {productCategories && productCategories?.length > 0 && (
-              <div className="flex flex-col gap-y-2">
-                <span className="txt-small-plus txt-ui-fg-base">
-                  Categories
-                </span>
-                <ul
-                  className="grid grid-cols-1 gap-2"
-                  data-testid="footer-categories"
-                >
-                  {productCategories?.slice(0, 6).map((c) => {
-                    if (c.parent_category) {
-                      return
-                    }
+    <footer className="bg-gray-900 text-white">
+      <div className="content-container">
+        {/* Main Footer Content */}
+        <div className="py-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
 
-                    const children =
-                      c.category_children?.map((child) => ({
-                        name: child.name,
-                        handle: child.handle,
-                        id: child.id,
-                      })) || null
+            {/* Company Info */}
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                  ITFin Shop
+                </h3>
+                <p className="mt-4 text-gray-300 leading-relaxed">
+                  Jouw betrouwbare partner voor premium producten.
+                  Ontdek kwaliteit en stijl in elke aankoop.
+                </p>
+              </div>
+
+              {/* Contact Info */}
+              <div className="space-y-3">
+                <div className="flex items-center space-x-3 text-gray-300">
+                  <MapPin size={18} className="text-blue-400" />
+                  <span>Amsterdam, Nederland</span>
+                </div>
+                <div className="flex items-center space-x-3 text-gray-300">
+                  <Phone size={18} className="text-blue-400" />
+                  <span>+31 20 123 4567</span>
+                </div>
+                <div className="flex items-center space-x-3 text-gray-300">
+                  <Envelope size={18} className="text-blue-400" />
+                  <span>info@itfinshop.nl</span>
+                </div>
+              </div>
+
+              {/*/!* Social Media *!/*/}
+              {/*<div className="flex space-x-4">*/}
+              {/*  <a href="#" className="p-3 bg-gray-800 rounded-full hover:bg-blue-600 transition-colors duration-300">*/}
+              {/*    <Facebook size={20} />*/}
+              {/*  </a>*/}
+              {/*  <a href="#" className="p-3 bg-gray-800 rounded-full hover:bg-pink-600 transition-colors duration-300">*/}
+              {/*    <Instagram size={20} />*/}
+              {/*  </a>*/}
+              {/*  <a href="#" className="p-3 bg-gray-800 rounded-full hover:bg-blue-400 transition-colors duration-300">*/}
+              {/*    <Twitter size={20} />*/}
+              {/*  </a>*/}
+              {/*</div>*/}
+            </div>
+
+            {/* Quick Links */}
+            <div>
+              <h4 className="text-lg font-semibold mb-6">Snelle Links</h4>
+              <ul className="space-y-3">
+                <li>
+                  <LocalizedClientLink
+                    href="/store"
+                    className="text-gray-300 hover:text-white hover:translate-x-2 transition-all duration-300 inline-block"
+                  >
+                    Alle Producten
+                  </LocalizedClientLink>
+                </li>
+                <li>
+                  <LocalizedClientLink
+                    href="/collections"
+                    className="text-gray-300 hover:text-white hover:translate-x-2 transition-all duration-300 inline-block"
+                  >
+                    Collecties
+                  </LocalizedClientLink>
+                </li>
+                <li>
+                  <LocalizedClientLink
+                    href="/about"
+                    className="text-gray-300 hover:text-white hover:translate-x-2 transition-all duration-300 inline-block"
+                  >
+                    Over Ons
+                  </LocalizedClientLink>
+                </li>
+                <li>
+                  <LocalizedClientLink
+                    href="/contact"
+                    className="text-gray-300 hover:text-white hover:translate-x-2 transition-all duration-300 inline-block"
+                  >
+                    Contact
+                  </LocalizedClientLink>
+                </li>
+              </ul>
+            </div>
+
+            {/* Categories */}
+            {productCategories && productCategories?.length > 0 && (
+              <div>
+                <h4 className="text-lg font-semibold mb-6">Categorieën</h4>
+                <ul className="space-y-3">
+                  {productCategories?.slice(0, 6).map((category) => {
+                    if (category.parent_category) return null
 
                     return (
-                      <li
-                        className="flex flex-col gap-2 text-ui-fg-subtle txt-small"
-                        key={c.id}
-                      >
+                      <li key={category.id}>
                         <LocalizedClientLink
-                          className={clx(
-                            "hover:text-ui-fg-base",
-                            children && "txt-small-plus"
-                          )}
-                          href={`/categories/${c.handle}`}
-                          data-testid="category-link"
+                          className="text-gray-300 hover:text-white hover:translate-x-2 transition-all duration-300 inline-block"
+                          href={`/categories/${category.handle}`}
                         >
-                          {c.name}
+                          {category.name}
                         </LocalizedClientLink>
-                        {children && (
-                          <ul className="grid grid-cols-1 ml-3 gap-2">
-                            {children &&
-                              children.map((child) => (
-                                <li key={child.id}>
-                                  <LocalizedClientLink
-                                    className="hover:text-ui-fg-base"
-                                    href={`/categories/${child.handle}`}
-                                    data-testid="category-link"
-                                  >
-                                    {child.name}
-                                  </LocalizedClientLink>
-                                </li>
-                              ))}
-                          </ul>
-                        )}
                       </li>
                     )
                   })}
                 </ul>
               </div>
             )}
-            {collections && collections.length > 0 && (
-              <div className="flex flex-col gap-y-2">
-                <span className="txt-small-plus txt-ui-fg-base">
-                  Collections
-                </span>
-                <ul
-                  className={clx(
-                    "grid grid-cols-1 gap-2 text-ui-fg-subtle txt-small",
-                    {
-                      "grid-cols-2": (collections?.length || 0) > 3,
-                    }
-                  )}
-                >
-                  {collections?.slice(0, 6).map((c) => (
-                    <li key={c.id}>
-                      <LocalizedClientLink
-                        className="hover:text-ui-fg-base"
-                        href={`/collections/${c.handle}`}
-                      >
-                        {c.title}
-                      </LocalizedClientLink>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            <div className="flex flex-col gap-y-2">
-              <span className="txt-small-plus txt-ui-fg-base">Medusa</span>
-              <ul className="grid grid-cols-1 gap-y-2 text-ui-fg-subtle txt-small">
+
+            {/* Customer Service */}
+            <div>
+              <h4 className="text-lg font-semibold mb-6">Klantenservice</h4>
+              <ul className="space-y-3">
                 <li>
-                  <a
-                    href="https://github.com/medusajs"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="hover:text-ui-fg-base"
+                  <LocalizedClientLink
+                    href="/help"
+                    className="text-gray-300 hover:text-white hover:translate-x-2 transition-all duration-300 inline-block"
                   >
-                    GitHub
-                  </a>
+                    Veelgestelde Vragen
+                  </LocalizedClientLink>
                 </li>
                 <li>
-                  <a
-                    href="https://docs.medusajs.com"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="hover:text-ui-fg-base"
+                  <LocalizedClientLink
+                    href="/shipping"
+                    className="text-gray-300 hover:text-white hover:translate-x-2 transition-all duration-300 inline-block"
                   >
-                    Documentation
-                  </a>
+                    Verzending & Retour
+                  </LocalizedClientLink>
                 </li>
                 <li>
-                  <a
-                    href="https://github.com/medusajs/nextjs-starter-medusa"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="hover:text-ui-fg-base"
+                  <LocalizedClientLink
+                    href="/privacy"
+                    className="text-gray-300 hover:text-white hover:translate-x-2 transition-all duration-300 inline-block"
                   >
-                    Source code
-                  </a>
+                    Privacy Beleid
+                  </LocalizedClientLink>
+                </li>
+                <li>
+                  <LocalizedClientLink
+                    href="/terms"
+                    className="text-gray-300 hover:text-white hover:translate-x-2 transition-all duration-300 inline-block"
+                  >
+                    Algemene Voorwaarden
+                  </LocalizedClientLink>
                 </li>
               </ul>
             </div>
           </div>
         </div>
-        <div className="flex w-full mb-16 justify-between text-ui-fg-muted">
-          <Text className="txt-compact-small">
-            © {new Date().getFullYear()} Medusa Store. All rights reserved.
-          </Text>
-          <MedusaCTA />
+
+        {/* Newsletter Section */}
+        <div className="border-t border-gray-800 py-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+            <div>
+              <h4 className="text-xl font-semibold mb-2">Blijf op de hoogte</h4>
+              <p className="text-gray-300">
+                Ontvang de nieuwste updates over onze producten en exclusieve aanbiedingen.
+              </p>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <input
+                type="email"
+                placeholder="Voer je e-mailadres in"
+                className="flex-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-blue-500 transition-colors"
+              />
+              <button className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold transition-colors duration-300">
+                Aanmelden
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom Footer */}
+        <div className="border-t border-gray-800 py-6">
+          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+            <Text className="text-gray-400 text-center md:text-left">
+              © {new Date().getFullYear()} ITFin Shop. Alle rechten voorbehouden.
+            </Text>
+
+            {/* Payment Methods */}
+            <div className="flex items-center space-x-4">
+              <span className="text-gray-400 text-sm">Wij accepteren:</span>
+              <div className="flex space-x-2">
+                <div className="w-8 h-5 bg-blue-600 rounded flex items-center justify-center text-xs font-bold text-white">V</div>
+                <div className="w-8 h-5 bg-red-600 rounded flex items-center justify-center text-xs font-bold text-white">M</div>
+                <div className="w-8 h-5 bg-yellow-500 rounded flex items-center justify-center text-xs font-bold text-white">PP</div>
+                <div className="w-8 h-5 bg-orange-600 rounded flex items-center justify-center text-xs font-bold text-white">iD</div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </footer>
